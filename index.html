@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>주차장 선택</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+            background: linear-gradient(135deg, #4a90e2 0%, #3b5998 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .container {
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 900px;
+            padding: 50px;
+            animation: fadeIn 0.6s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .main-title {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 3em;
+            font-weight: bold;
+            animation: slideDown 0.8s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .question {
+            text-align: center;
+            color: #34495e;
+            margin-bottom: 50px;
+            font-size: 1.8em;
+            animation: slideDown 0.8s ease 0.2s both;
+        }
+
+        .parking-options {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            animation: slideUp 0.8s ease 0.4s both;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .parking-button {
+            background: white;
+            border: 3px solid #4a90e2;
+            padding: 35px 30px;
+            font-size: 1.6em;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+
+        .parking-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #4a90e2 0%, #3b5998 100%);
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .parking-button:hover {
+            color: white;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(74, 144, 226, 0.4);
+        }
+
+        .parking-button:hover::before {
+            left: 0;
+        }
+
+        .parking-button:active {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(74, 144, 226, 0.4);
+        }
+
+        .parking-icon {
+            display: inline-block;
+            font-size: 1.3em;
+            margin-right: 15px;
+            vertical-align: middle;
+        }
+
+        .parking-name {
+            display: inline-block;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .parking-desc {
+            display: block;
+            font-size: 0.8em;
+            opacity: 0.8;
+            font-weight: normal;
+        }
+
+        .iframe-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 1000;
+        }
+
+        .iframe-header {
+            background: linear-gradient(135deg, #4a90e2 0%, #3b5998 100%);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .iframe-title {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .back-button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 10px 25px;
+            font-size: 1.1em;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .back-button:hover {
+            background: white;
+            color: #4a90e2;
+        }
+
+        iframe {
+            width: 100%;
+            height: calc(100% - 70px);
+            border: none;
+        }
+
+        .timer {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-size: 1.2em;
+            display: none;
+            z-index: 2000;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+        .timer-warning {
+            background: rgba(231, 76, 60, 0.9);
+            animation: shake 0.5s infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .footer-info {
+            text-align: center;
+            margin-top: 40px;
+            color: #e74c3c;
+            font-size: 1.1em;
+            font-weight: bold;
+            line-height: 1.8;
+            animation: fadeIn 1s ease 0.6s both;
+            background: rgba(231, 76, 60, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid rgba(231, 76, 60, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+                width: 95%;
+            }
+            
+            .main-title {
+                font-size: 2.2em;
+            }
+            
+            .question {
+                font-size: 1.4em;
+                margin-bottom: 30px;
+            }
+            
+            .parking-button {
+                padding: 30px 20px;
+                font-size: 1.3em;
+            }
+            
+            .parking-name {
+                font-size: 1.1em;
+            }
+        }
+
+        /* 로딩 애니메이션 */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #4a90e2;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: white;
+            margin-top: 20px;
+            font-size: 1.3em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="mainContainer">
+        <h1 class="main-title">🚗 주차 위치 확인</h1>
+        <p class="question">어느 주차장에 주차하셨나요?</p>
+        
+        <div class="parking-options">
+            <button class="parking-button" onclick="openParkingSystem('gwangmyeong')">
+                <span class="parking-icon">🏢</span>
+                <span class="parking-name">광명시청 주차장</span>
+            </button>
+            
+            <button class="parking-button" onclick="openParkingSystem('cheolsan')">
+                <span class="parking-icon">🅿️</span>
+                <span class="parking-name">철산지하공영주차장</span>
+            </button>
+        </div>
+        
+        <div class="footer-info">
+            ※ 업무가 끝난 후 차량번호를 입력해 주세요<br>
+            ※ 여권업무를 이용하신 분만 감면이 가능합니다
+        </div>
+    </div>
+
+    <div id="iframeContainer" class="iframe-container">
+        <div class="iframe-header">
+            <span id="iframeTitle" class="iframe-title"></span>
+            <button class="back-button" onclick="goHome()">처음으로</button>
+        </div>
+        <iframe id="parkingFrame" src=""></iframe>
+    </div>
+
+    <div id="timer" class="timer">
+        자동 복귀까지: <span id="timerCount">30</span>초
+    </div>
+
+    <div id="loadingOverlay" class="loading-overlay">
+        <div>
+            <div class="loading-spinner"></div>
+            <div class="loading-text">연결 중...</div>
+        </div>
+    </div>
+
+    <script>
+        let inactivityTimer;
+        let countdownTimer;
+        let countdown = 30;
+        let isIframeOpen = false;
+        
+        // 주차장 URL 설정
+        const PARKING_SYSTEMS = {
+            gwangmyeong: {
+                url: 'https://cthdc.gmuc.co.kr/login',
+                name: '광명시청 주차장'
+            },
+            cheolsan: {
+                url: 'https://ctdc.gmuc.co.kr/login',
+                name: '철산지하공영주차장'
+            }
+        };
+
+        // 비활성 타이머 시작
+        function startInactivityTimer() {
+            if (!isIframeOpen) return;
+            
+            clearTimeout(inactivityTimer);
+            clearInterval(countdownTimer);
+            
+            countdown = 30;
+            document.getElementById('timer').style.display = 'block';
+            document.getElementById('timerCount').textContent = countdown;
+            
+            // 카운트다운 타이머
+            countdownTimer = setInterval(() => {
+                countdown--;
+                document.getElementById('timerCount').textContent = countdown;
+                
+                // 10초 이하일 때 경고 스타일 적용
+                if (countdown <= 10) {
+                    document.getElementById('timer').classList.add('timer-warning');
+                } else {
+                    document.getElementById('timer').classList.remove('timer-warning');
+                }
+                
+                if (countdown <= 0) {
+                    clearInterval(countdownTimer);
+                    goHome();
+                }
+            }, 1000);
+            
+            // 30초 후 자동 복귀
+            inactivityTimer = setTimeout(() => {
+                goHome();
+            }, 30000);
+        }
+
+        // 타이머 리셋
+        function resetTimer() {
+            if (isIframeOpen) {
+                startInactivityTimer();
+            }
+        }
+
+        // 이벤트 리스너 설정
+        function setupEventListeners() {
+            // iframe 내부의 이벤트는 감지할 수 없으므로, 
+            // iframe 컨테이너에서의 이벤트만 감지
+            const events = ['click', 'mousemove', 'touchstart', 'keypress'];
+            events.forEach(event => {
+                document.getElementById('iframeContainer').addEventListener(event, resetTimer);
+            });
+            
+            // iframe 포커스 감지
+            window.addEventListener('blur', function() {
+                if (isIframeOpen) {
+                    // iframe이 포커스를 받았을 때도 타이머 리셋
+                    resetTimer();
+                }
+            });
+        }
+
+        // 주차 시스템 열기
+        function openParkingSystem(system) {
+            const parkingInfo = PARKING_SYSTEMS[system];
+            
+            // 로딩 표시
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            
+            setTimeout(() => {
+                // 메인 컨테이너 숨기기
+                document.getElementById('mainContainer').style.display = 'none';
+                
+                // iframe 설정 및 표시
+                document.getElementById('iframeTitle').textContent = parkingInfo.name + ' 주차감면';
+                document.getElementById('parkingFrame').src = parkingInfo.url;
+                document.getElementById('iframeContainer').style.display = 'block';
+                
+                // 로딩 숨기기
+                document.getElementById('loadingOverlay').style.display = 'none';
+                
+                isIframeOpen = true;
+                startInactivityTimer();
+            }, 500);
+        }
+
+        // 홈으로 돌아가기
+        function goHome() {
+            // iframe 초기화
+            document.getElementById('parkingFrame').src = '';
+            document.getElementById('iframeContainer').style.display = 'none';
+            
+            // 메인 화면 표시
+            document.getElementById('mainContainer').style.display = 'block';
+            
+            // 타이머 숨기기 및 초기화
+            document.getElementById('timer').style.display = 'none';
+            document.getElementById('timer').classList.remove('timer-warning');
+            
+            clearTimeout(inactivityTimer);
+            clearInterval(countdownTimer);
+            isIframeOpen = false;
+        }
+
+        // iframe 메시지 수신 (iframe 내부 활동 감지용)
+        window.addEventListener('message', function(e) {
+            // iframe에서 메시지를 받으면 타이머 리셋
+            if (isIframeOpen) {
+                resetTimer();
+            }
+        });
+
+        // 페이지 로드 시 이벤트 리스너 설정
+        window.addEventListener('DOMContentLoaded', setupEventListeners);
+
+        // 뒤로가기 방지
+        history.pushState(null, null, location.href);
+        window.onpopstate = function() {
+            history.go(1);
+        };
+    </script>
+</body>
+</html>
